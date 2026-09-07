@@ -21,6 +21,7 @@ class PaymentControllerTest {
         assertEquals(new BigDecimal("100"), result.amount());
         assertEquals(new BigDecimal("0.00"), result.fee());
         assertEquals(new BigDecimal("100.00"), result.total());
+        assertEquals("Pago en efectivo registrado, sin comisión.", result.message());
     }
 
     @Test
@@ -30,19 +31,20 @@ class PaymentControllerTest {
         assertEquals("VISA", result.method());
         assertEquals(new BigDecimal("7.00"), result.fee());
         assertEquals(new BigDecimal("207.00"), result.total());
+        assertEquals("Pago con tarjeta de crédito Visa procesado, se aplica comisión bancaria.", result.message());
     }
 
     @Test
     void getFee_InvalidPaymentMethod_BadRequest() {
-        IllegalArgumentException exception = null;
+        UnknownPaymentMethodException exception = null;
         try {
             paymentController.getFee("CRYPTO", new BigDecimal("100.00"));
-        } catch (IllegalArgumentException ex) {
+        } catch (UnknownPaymentMethodException ex) {
             exception = ex;
         }
         ResponseEntity<Map<String, String>> response = paymentController.handleUnknownMethod(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(Map.of("error", "método de pago no soportado"), response.getBody());
+        assertEquals(Map.of("error", "método de pago 'CRYPTO' no soportado"), response.getBody());
     }
 }

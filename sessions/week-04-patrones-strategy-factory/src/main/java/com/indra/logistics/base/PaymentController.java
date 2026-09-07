@@ -26,8 +26,8 @@ public class PaymentController {
         return paymentService.process(new PaymentRequest(amount, paymentMethod));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleUnknownMethod(IllegalArgumentException ex) {
+    @ExceptionHandler(UnknownPaymentMethodException.class)
+    public ResponseEntity<Map<String, String>> handleUnknownMethod(UnknownPaymentMethodException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
     }
 }

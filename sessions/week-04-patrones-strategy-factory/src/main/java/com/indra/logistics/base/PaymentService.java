@@ -38,7 +38,7 @@ public class PaymentService {
             fee = amount.multiply(BigDecimal.valueOf(0.032)).setScale(2, RoundingMode.HALF_UP);
             message = "Pago con tarjeta American Express procesado, se aplica comisión bancaria.";
         } else {
-            throw new IllegalArgumentException("método de pago no soportado");
+            throw new UnknownPaymentMethodException(method);
         }
 
         BigDecimal total = amount.add(fee);
