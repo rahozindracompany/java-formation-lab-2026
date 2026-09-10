@@ -17,8 +17,15 @@ public class PaymentService {
         String message;
 
         if ("VISA".equals(method)) {
-            fee = amount.multiply(BigDecimal.valueOf(0.035)).setScale(2, RoundingMode.HALF_UP);
-            message = "Pago con tarjeta de crédito Visa procesado, se aplica comisión bancaria.";
+            // Si el monto es menor a 100, no se aplica comisión
+            if (amount.compareTo(BigDecimal.valueOf(100)) < 0) {
+                fee = BigDecimal.ZERO;
+                message = "Pago con tarjeta de crédito Visa procesado, monto no aplica comisión bancaria.";
+            } else {
+                BigDecimal tariff = creditCardTariff().add(BigDecimal.valueOf(0.005));
+                fee = amount.multiply(tariff).setScale(2, RoundingMode.HALF_UP);
+                message = "Pago con tarjeta de crédito Visa procesado, se aplica comisión bancaria.";
+            }
         } else if ("PAYPAL".equals(method)) {
             fee = amount.multiply(BigDecimal.valueOf(0.02)).setScale(2, RoundingMode.HALF_UP);
             message = "Pago con PayPal procesado, comisión de plataforma aplicada.";
@@ -29,19 +36,37 @@ public class PaymentService {
             fee = amount.multiply(BigDecimal.valueOf(0.025)).setScale(2, RoundingMode.HALF_UP);
             message = "Pago por transferencia bancaria registrado, comisión bancaria aplicada.";
         } else if ("MASTERCARD".equals(method)) {
-            fee = amount.multiply(BigDecimal.valueOf(0.03)).setScale(2, RoundingMode.HALF_UP);
-            message = "Pago con tarjeta de crédito Mastercard procesado, se aplica comisión bancaria.";
+             // Si el monto es menor a 100, no se aplica comisión
+            if (amount.compareTo(BigDecimal.valueOf(100)) < 0) {
+                fee = BigDecimal.ZERO;
+                message = "Pago con tarjeta de crédito Mastercard procesado, monto no aplica comisión bancaria.";
+            } else {
+                BigDecimal tariff = creditCardTariff().add(BigDecimal.ZERO);
+                fee = amount.multiply(tariff).setScale(2, RoundingMode.HALF_UP);
+                message = "Pago con tarjeta de crédito Mastercard procesado, se aplica comisión bancaria.";
+            }
         } else if ("DEBIT_CARD".equals(method)) {
             fee = amount.multiply(BigDecimal.valueOf(0.04)).setScale(2, RoundingMode.HALF_UP);
             message = "Pago con tarjeta de débito procesado, se aplica comisión bancaria.";
         }  else if ("AMEX".equals(method)) {
-            fee = amount.multiply(BigDecimal.valueOf(0.032)).setScale(2, RoundingMode.HALF_UP);
-            message = "Pago con tarjeta American Express procesado, se aplica comisión bancaria.";
+             // Si el monto es menor a 100, no se aplica comisión
+            if (amount.compareTo(BigDecimal.valueOf(100)) < 0) {
+                fee = BigDecimal.ZERO;
+                message = "Pago con tarjeta American Express procesado, monto no aplica comisión bancaria.";
+            } else {
+                BigDecimal tariff = creditCardTariff().add(BigDecimal.ZERO);
+                fee = amount.multiply(tariff).setScale(2, RoundingMode.HALF_UP);
+                message = "Pago con tarjeta American Express procesado, se aplica comisión bancaria.";
+            }
         } else {
             throw new UnknownPaymentMethodException(method);
         }
 
         BigDecimal total = amount.add(fee);
         return new PaymentResult(method, amount, fee, total, message);
+    }
+
+    public BigDecimal creditCardTariff() {
+        return BigDecimal.valueOf(0.03);
     }
 }
