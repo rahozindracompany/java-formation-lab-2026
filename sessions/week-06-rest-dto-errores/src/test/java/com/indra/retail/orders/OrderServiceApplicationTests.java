@@ -54,8 +54,10 @@ class OrderServiceApplicationTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.timestamp").isNotEmpty())
                 .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.errors").isArray())
-                .andExpect(jsonPath("$.errors").isNotEmpty());
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.path").value("/api/orders"));
     }
 
     @Test
@@ -63,7 +65,22 @@ class OrderServiceApplicationTests {
         mockMvc.perform(get("/api/orders/missing"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("ORDER_NOT_FOUND"))
                 .andExpect(jsonPath("$.errors[0]").value("Pedido no encontrado: missing"))
+                .andExpect(jsonPath("$.path").value("/api/orders/missing"))
+                .andExpect(jsonPath("$.trace").doesNotExist());
+    }
+
+    @Test
+    void malformedRequestReturnsStandardInternalError() throws Exception {
+        mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{malformed-json"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
+                .andExpect(jsonPath("$.errors[0]").value("Error interno del servidor"))
+                .andExpect(jsonPath("$.path").value("/api/orders"))
                 .andExpect(jsonPath("$.trace").doesNotExist());
     }
 }
