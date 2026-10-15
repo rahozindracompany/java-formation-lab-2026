@@ -3,6 +3,7 @@ package com.indra.retail.manager;
 import com.indra.retail.entities.Customer;
 import com.indra.retail.entities.Order;
 import com.indra.retail.entities.OrderItem;
+import com.indra.retail.entities.OrderStatus;
 import com.indra.retail.entities.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -97,7 +98,7 @@ class EntityManagerRecordManagerTest {
         });
 
         Order found = manager.findById(Order.class, ids[0]).orElseThrow();
-        assertEquals("PENDING", found.getStatus());
+        assertEquals(OrderStatus.PENDING, found.getStatus());
         assertEquals(ids[1], found.getCustomer().getId());
     }
 }
