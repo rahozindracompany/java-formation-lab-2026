@@ -18,3 +18,7 @@ Entender y aplicar correctamente `@Transactional`: propagación, rollback rules,
 | 0–20' | Revisión `week-09-solution`: reglas de oro de mapeo JPA |
 | 20–40' | Contexto + demo: @Transactional self-invocation, rollback solo en RuntimeException — transferencia bancaria (ver `enunciado.md`) |
 | 40–60' | Q&A (se resuelve entre semana, PR antes del jueves siguiente) |
+
+## Decision transaccional
+
+`TransferAuditService.log()` usa `REQUIRES_NEW` para suspender la transaccion de la transferencia y confirmar el evento de auditoria en una transaccion independiente. `NESTED` no ofrece la misma garantia: depende de savepoints soportados por el gestor de transacciones y mantiene la operacion dentro de la transaccion fisica externa, cuyo rollback puede descartar sus cambios.
