@@ -1,9 +1,11 @@
 package com.indra.jpa.inventory.controller;
 
+import java.math.BigDecimal;
 import java.util.ConcurrentModificationException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,8 +30,14 @@ public class ProductController {
     }
 
     @GetMapping
-    public Page<Product> search(@RequestParam(required = false) String name, Pageable pageable) {
-        return inventoryService.searchProducts(name, pageable);
+    public Page<Product> search(@RequestParam(required = false) String name,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @PageableDefault(size = 10) Pageable pageable) {
+        if (minPrice == null && maxPrice == null) {
+            return inventoryService.searchProducts(name, pageable);
+        }
+        return inventoryService.searchProducts(name, minPrice, maxPrice, pageable);
     }
 
     @PostMapping("/{productId}/stock")

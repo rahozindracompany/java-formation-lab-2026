@@ -1,5 +1,6 @@
 package com.indra.jpa.inventory.service;
 
+import java.math.BigDecimal;
 import java.util.ConcurrentModificationException;
 
 import org.springframework.data.domain.Page;
@@ -28,6 +29,12 @@ public class InventoryService {
         return productRepository.searchProducts(name, pageable);
     }
 
+    @Transactional(readOnly = true)
+    public Page<Product> searchProducts(String name, BigDecimal minPrice, BigDecimal maxPrice,
+            Pageable pageable) {
+        return productRepository.searchProducts(name, minPrice, maxPrice, pageable);
+    }
+
     public Product increaseStock(Long productId, int quantity) {
 
         Product product = productRepository.findByIdForUpdate(productId).get();
@@ -42,7 +49,7 @@ public class InventoryService {
         product.setStock(product.getStock() - quantity);
 
         try {
-            productRepository.save(product);
+            productRepository.saveAndFlush(product);
         } catch (OptimisticLockException | ObjectOptimisticLockingFailureException exception) {
             throw new ConcurrentModificationException("Stock modificado concurrentemente, reintenta", exception);
         }
