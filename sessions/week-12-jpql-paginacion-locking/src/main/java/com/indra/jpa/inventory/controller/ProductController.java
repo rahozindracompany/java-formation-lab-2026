@@ -32,6 +32,11 @@ public class ProductController {
         return inventoryService.searchProducts(name, pageable);
     }
 
+    @PostMapping("/{productId}/stock")
+    public Product increaseStock(@PathVariable Long productId, @RequestParam("quantity") int quantity) {
+        return inventoryService.increaseStock(productId, quantity);
+    }
+
     @PostMapping("/{productId}/reservations")
     public ResponseEntity<Void> reserve(@PathVariable Long productId,
             @RequestParam("quantity") int quantity) {
